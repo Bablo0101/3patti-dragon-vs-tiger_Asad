@@ -30,22 +30,26 @@ function renderHistory() {
 }
 
 function updatePrediction() {
-  if (results.length === 0) {
+  if (results.length < 3) {
     predictionEl.textContent = 'Waiting...';
     return;
   }
 
-  // Use all 100 results for prediction
-  let count = { Dragon: 0, Tiger: 0, Tie: 0 };
-  results.forEach(item => {
-    count[item]++;
-  });
+  const last2 = results.slice(-2).join(',');
 
-  // Find the most frequent result
-  let max = Math.max(count.Dragon, count.Tiger, count.Tie);
-  let prediction = Object.keys(count).find(key => count[key] === max);
+  const freqMap = { Dragon: 0, Tiger: 0, Tie: 0 };
+  for (let i = 0; i < results.length - 2; i++) {
+    const seq = results[i] + ',' + results[i + 1];
+    const next = results[i + 2];
+    if (seq === last2) {
+      freqMap[next]++;
+    }
+  }
 
-  predictionEl.textContent = prediction;
+  let max = Math.max(freqMap.Dragon, freqMap.Tiger, freqMap.Tie);
+  let prediction = Object.keys(freqMap).find(k => freqMap[k] === max && max > 0);
+
+  predictionEl.textContent = prediction || 'No clear pattern';
 }
 
 renderHistory();
