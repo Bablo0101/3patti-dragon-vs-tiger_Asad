@@ -1,50 +1,52 @@
-let results = JSON.parse(localStorage.getItem("results")) || [];
 
-function saveAndRender() {
-  if (results.length > 100) {
-    results = results.slice(results.length - 100);
-  }
-  localStorage.setItem("results", JSON.stringify(results));
-  renderHistory();
-  predictNext();
-}
+let results = JSON.parse(localStorage.getItem('results') || '[]');
+const historyList = document.getElementById('historyList');
+const predictionEl = document.getElementById('prediction');
 
 function addResult(result) {
+  if (results.length >= 100) {
+    results.shift();
+  }
   results.push(result);
-  saveAndRender();
-}
-
-function renderHistory() {
-  const list = document.getElementById("historyList");
-  list.innerHTML = "";
-  results.slice().reverse().forEach((item, index) => {
-    const li = document.createElement("li");
-    li.textContent = `${results.length - index}: ${item}`;
-    list.appendChild(li);
-  });
+  localStorage.setItem('results', JSON.stringify(results));
+  renderHistory();
+  updatePrediction();
 }
 
 function clearData() {
   results = [];
-  localStorage.removeItem("results");
+  localStorage.removeItem('results');
   renderHistory();
-  document.getElementById("prediction").textContent = "Waiting...";
+  updatePrediction();
 }
 
-function predictNext() {
-  if (results.length < 5) {
-    document.getElementById("prediction").textContent = "Need more data...";
+function renderHistory() {
+  historyList.innerHTML = '';
+  results.forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    historyList.appendChild(li);
+  });
+}
+
+function updatePrediction() {
+  if (results.length === 0) {
+    predictionEl.textContent = 'Waiting...';
     return;
   }
 
-  let counts = { Dragon: 0, Tiger: 0, Tie: 0 };
-  results.slice(-20).forEach((r) => counts[r]++);
+  // Use all 100 results for prediction
+  let count = { Dragon: 0, Tiger: 0, Tie: 0 };
+  results.forEach(item => {
+    count[item]++;
+  });
 
-  let max = Math.max(counts.Dragon, counts.Tiger, counts.Tie);
-  let prediction =
-    Object.keys(counts).find((key) => counts[key] === max) || "Unknown";
+  // Find the most frequent result
+  let max = Math.max(count.Dragon, count.Tiger, count.Tie);
+  let prediction = Object.keys(count).find(key => count[key] === max);
 
-  document.getElementById("prediction").textContent = prediction;
+  predictionEl.textContent = prediction;
 }
 
-saveAndRender();
+renderHistory();
+updatePrediction();
