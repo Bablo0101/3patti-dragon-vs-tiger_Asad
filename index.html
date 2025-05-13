@@ -1,30 +1,106 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Advanced Dragon vs Tiger Predictor</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DragonMaster2025 - AI Predictor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+    .dragon { background-color: #3498db; color: white; }
+    .tiger { background-color: #e67e22; color: white; }
+    .tie { background-color: #95a5a6; color: white; }
+    #history { margin-top: 20px; max-height: 300px; overflow-y: auto; }
+    .entry { margin: 5px 0; }
+    #prediction, #accuracy {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    .feedback-btns button {
+      margin: 5px;
+      background-color: #2ecc71;
+      color: white;
+    }
+    .no-btn { background-color: #e74c3c !important; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🐉 Dragon vs 🐯 Tiger - AI Predictor</h1>
-    <div class="buttons">
-      <button onclick="addResult('Dragon')">Dragon</button>
-      <button onclick="addResult('Tiger')">Tiger</button>
-      <button onclick="addResult('Tie')">Tie</button>
-    </div>
-    <div class="prediction">
-      <h2>Prediction: <span id="prediction">Waiting...</span></h2>
-    </div>
-    <div class="history">
-      <h3>Last 100 Entries</h3>
-      <ul id="historyList"></ul>
-    </div>
-    <button class="clear" onclick="clearData()">Clear Data</button>
+  <h1>DragonMaster2025 - AI Predictor</h1>
+  <div>
+    <button class="dragon" onclick="addResult('Dragon')">Dragon</button>
+    <button class="tiger" onclick="addResult('Tiger')">Tiger</button>
+    <button class="tie" onclick="addResult('Tie')">Tie</button>
   </div>
+  <div id="prediction">Prediction: -</div>
+  <div class="feedback-btns">
+    <button onclick="giveFeedback(true)">✔️ درست</button>
+    <button class="no-btn" onclick="giveFeedback(false)">❌ غلط</button>
+  </div>
+  <div id="accuracy">Accuracy: 0%</div>
+  <div id="history"></div>
 
-  <script src="script.js"></script>
+  <script>
+    let results = JSON.parse(localStorage.getItem('results') || '[]');
+    let correct = parseInt(localStorage.getItem('correct') || '0');
+    let total = parseInt(localStorage.getItem('total') || '0');
+
+    function addResult(result) {
+      results.push(result);
+      if (results.length > 200) results.shift();
+      localStorage.setItem('results', JSON.stringify(results));
+      updateHistory();
+      makePrediction();
+    }
+
+    function updateHistory() {
+      const history = document.getElementById('history');
+      history.innerHTML = results.map((res, i) => `<div class='entry'>${i + 1}. ${res}</div>`).join('');
+    }
+
+    function makePrediction() {
+      if (results.length < 5) return document.getElementById('prediction').innerText = 'Prediction: -';
+      const last = results.slice(-5).join(',');
+
+      const counts = { Dragon: 0, Tiger: 0, Tie: 0 };
+      results.slice(-5).forEach(r => counts[r]++);
+
+      let prediction = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+      document.getElementById('prediction').innerText = `Prediction: ${prediction}`;
+      localStorage.setItem('lastPrediction', prediction);
+    }
+
+    function giveFeedback(isCorrect) {
+      total++;
+      if (isCorrect) correct++;
+      localStorage.setItem('correct', correct);
+      localStorage.setItem('total', total);
+      updateAccuracy();
+    }
+
+    function updateAccuracy() {
+      let acc = total === 0 ? 0 : Math.round((correct / total) * 100);
+      document.getElementById('accuracy').innerText = `Accuracy: ${acc}%`;
+    }
+
+    updateHistory();
+    makePrediction();
+    updateAccuracy();
+  </script>
 </body>
 </html>
