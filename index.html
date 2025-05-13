@@ -4,10 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DragonMaster2025 - AI Predictor</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
       margin: 0;
       padding: 20px;
       text-align: center;
@@ -26,8 +27,9 @@
     .dragon { background-color: #3498db; color: white; }
     .tiger { background-color: #e67e22; color: white; }
     .tie { background-color: #95a5a6; color: white; }
-    #history { margin-top: 20px; max-height: 300px; overflow-y: auto; }
-    .entry { margin: 5px 0; }
+    .clear { background-color: #c0392b; color: white; margin-top: 10px; }
+    #history { margin-top: 20px; max-height: 200px; overflow-y: auto; background: #ecf0f1; padding: 10px; border-radius: 8px; }
+    .entry { margin: 3px 0; }
     #prediction, #accuracy {
       margin-top: 20px;
       font-weight: bold;
@@ -38,6 +40,7 @@
       color: white;
     }
     .no-btn { background-color: #e74c3c !important; }
+    canvas { margin-top: 30px; max-width: 600px; margin-left: auto; margin-right: auto; }
   </style>
 </head>
 <body>
@@ -46,6 +49,7 @@
     <button class="dragon" onclick="addResult('Dragon')">Dragon</button>
     <button class="tiger" onclick="addResult('Tiger')">Tiger</button>
     <button class="tie" onclick="addResult('Tie')">Tie</button>
+    <button class="clear" onclick="clearData()">Clear Data</button>
   </div>
   <div id="prediction">Prediction: -</div>
   <div class="feedback-btns">
@@ -54,6 +58,7 @@
   </div>
   <div id="accuracy">Accuracy: 0%</div>
   <div id="history"></div>
+  <canvas id="resultsChart"></canvas>
 
   <script>
     let results = JSON.parse(localStorage.getItem('results') || '[]');
@@ -65,6 +70,7 @@
       if (results.length > 200) results.shift();
       localStorage.setItem('results', JSON.stringify(results));
       updateHistory();
+      updateGraph();
       makePrediction();
     }
 
@@ -75,11 +81,9 @@
 
     function makePrediction() {
       if (results.length < 5) return document.getElementById('prediction').innerText = 'Prediction: -';
-      const last = results.slice(-5).join(',');
-
+      const last = results.slice(-5);
       const counts = { Dragon: 0, Tiger: 0, Tie: 0 };
-      results.slice(-5).forEach(r => counts[r]++);
-
+      last.forEach(r => counts[r]++);
       let prediction = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
       document.getElementById('prediction').innerText = `Prediction: ${prediction}`;
       localStorage.setItem('lastPrediction', prediction);
@@ -98,9 +102,46 @@
       document.getElementById('accuracy').innerText = `Accuracy: ${acc}%`;
     }
 
+    function clearData() {
+      results = [];
+      correct = 0;
+      total = 0;
+      localStorage.clear();
+      updateHistory();
+      updateAccuracy();
+      updateGraph();
+      document.getElementById('prediction').innerText = 'Prediction: -';
+    }
+
+    let chart;
+    function updateGraph() {
+      const counts = { Dragon: 0, Tiger: 0, Tie: 0 };
+      results.forEach(r => counts[r]++);
+      const ctx = document.getElementById('resultsChart').getContext('2d');
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Dragon', 'Tiger', 'Tie'],
+          datasets: [{
+            label: 'Total Entries',
+            data: [counts.Dragon, counts.Tiger, counts.Tie],
+            backgroundColor: ['#3498db', '#e67e22', '#95a5a6']
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+
     updateHistory();
-    makePrediction();
     updateAccuracy();
+    updateGraph();
+    makePrediction();
   </script>
 </body>
 </html>
