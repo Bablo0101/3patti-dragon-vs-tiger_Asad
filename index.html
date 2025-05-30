@@ -2,41 +2,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Asad - Dragon Tiger Predictor</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Haji Hanif & Sons - Office Management</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>🐉 Asad - Dragon Tiger Predictor 🐅</h1>
-    <div class="buttons">
-      <button onclick="addEntry('Dragon')">Dragon</button>
-      <button onclick="addEntry('Tiger')">Tiger</button>
-      <button onclick="addEntry('Tie')">Tie</button>
-    </div>
-    <div class="stats">
-      <p>Total Entries: <span id="totalEntries">0</span></p>
-      <p>🐉 Dragon: <span id="dragonCount">0</span></p>
-      <p>🐅 Tiger: <span id="tigerCount">0</span></p>
-      <p>🤝 Tie: <span id="tieCount">0</span></p>
-    </div>
-    <div class="history" id="historyList"></div>
-    <div class="prediction-box">
-      <h3>AI Prediction: <span id="predictionResult">Waiting...</span></h3>
-      <button onclick="feedback('correct')">✅ Correct</button>
-      <button onclick="feedback('incorrect')">❌ Incorrect</button>
-    </div>
-    <canvas id="graphCanvas" width="300" height="100"></canvas>
-    <button class="reset" onclick="resetData()">🔁 Reset</button>
-  </div>
-  <button class="chat-button" onclick="openChat()">💬 Support</button>
-  <div id="chatBox" class="chat-box" style="display:none;">
-    <h4>Support Chat</h4>
-    <textarea placeholder="Type your message..."></textarea>
-    <button onclick="sendMessage()">Send</button>
-    <button onclick="closeChat()">Close</button>
-  </div>
-  <script src="app.js"></script>
+<div id="app"></div>
+<script src="app.js"></script>
 </body>
 </html>
